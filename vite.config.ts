@@ -1,0 +1,27 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import electron from 'vite-plugin-electron/simple'
+import path from 'path'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  // FIX: Make base path relative so the app loads assets via file:// in production
+  base: './',
+  plugins: [
+    react(),
+    electron({
+      main: {
+        entry: 'electron/main.ts',
+      },
+      preload: {
+        input: 'electron/preload.ts',
+      },
+      renderer: {},
+    }),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})
