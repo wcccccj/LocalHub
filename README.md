@@ -1,6 +1,10 @@
 # LocalHub
 
+[中文说明](./README_zh.md)
+
 LocalHub is a lightweight, cross-platform local service manager and alias tool built with Electron, React, and Tailwind CSS. It automatically scans your local listening ports, allows you to assign custom aliases and notes to each service, and provides quick access via your browser.
+
+![LocalHub Screenshot](./image/screenshot.png)
 
 ## Features
 
