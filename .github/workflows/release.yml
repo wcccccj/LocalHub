@@ -35,9 +35,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build and Publish Release
-        # GitHub 自动提供的 Token，用于向当前仓库的 Releases 发布产物
+      - name: Build App
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            pnpm run build:mac
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            pnpm run build:win
+          fi
+        shell: bash
+
+      - name: Upload Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist-app/*.dmg
+            dist-app/*.zip
+            dist-app/*.exe
+            dist-app/*.blockmap
+          generate_release_notes: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # 运行我们将在 package.json 中配置的 release 脚本
-        run: pnpm run release
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
