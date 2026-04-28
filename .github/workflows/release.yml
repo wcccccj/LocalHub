@@ -1,0 +1,43 @@
+name: Build and Release App
+
+on:
+  push:
+    tags:
+      - 'v*' # 只有在推送以 v 开头的 tag 时才会触发，例如 v1.0.0
+
+permissions:
+  contents: write # 允许 Action 创建 Release 并上传产物
+
+jobs:
+  release:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # 分别在 macOS 和 Windows 上进行构建
+        os: [macos-latest, windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10 # 匹配你本地使用的 pnpm 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and Publish Release
+        # GitHub 自动提供的 Token，用于向当前仓库的 Releases 发布产物
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # 运行我们将在 package.json 中配置的 release 脚本
+        run: pnpm run release
