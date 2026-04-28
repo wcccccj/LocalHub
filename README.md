@@ -59,6 +59,19 @@ npm run build
 
 The compiled binaries will be available in the `dist` folder.
 
+### macOS Installation Troubleshooting (Apple cannot check it...)
+
+Because this app is not signed and notarized by Apple, you might see a warning that says **"Apple cannot check it for malicious software"** or **"LocalHub can’t be opened"** when you first run the app.
+
+**To fix this, choose one of the following methods:**
+
+*   **Method 1 (Terminal - Fastest):** Open the `Terminal` app and run the following command to remove the quarantine attribute:
+    ```bash
+    xattr -cr /Applications/LocalHub.app
+    ```
+*   **Method 2 (System Settings):** Go to Apple menu  -> **System Settings** -> **Privacy & Security**. Scroll down to the "Security" section. You should see a message saying LocalHub was blocked. Click **"Open Anyway"**.
+*   **Method 3 (Right-Click):** In the Finder, locate the LocalHub app in your Applications folder. `Control-click` (or right-click) the app icon, then choose **Open** from the shortcut menu. Click **Open** again in the dialog box.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
