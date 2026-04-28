@@ -50,6 +50,8 @@ jobs:
       - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }} # 指定 tag 名称，如果没有触发 push tags，则使用当前分支名或其他变量
+          name: Release ${{ github.ref_name }} # 设置 Release 的标题
           files: |
             dist-app/*.dmg
             dist-app/*.zip
