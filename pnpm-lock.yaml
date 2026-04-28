@@ -8,6 +8,10 @@ importers:
 
   .:
     dependencies:
+      electron-store:
+        specifier: ^11.0.2
+        version: 11.0.2
+    devDependencies:
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -17,34 +21,6 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@18.3.1)
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      electron-store:
-        specifier: ^11.0.2
-        version: 11.0.2
-      lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@18.3.1)
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-router-dom:
-        specifier: ^7.3.0
-        version: 7.14.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      tailwind-merge:
-        specifier: ^3.0.2
-        version: 3.5.0
-      uuid:
-        specifier: ^14.0.0
-        version: 14.0.0
-      zustand:
-        specifier: ^5.0.3
-        version: 5.0.12(@types/react@18.3.28)(react@18.3.1)
-    devDependencies:
       '@eslint/js':
         specifier: ^9.25.0
         version: 9.39.4
@@ -69,6 +45,9 @@ importers:
       babel-plugin-react-dev-locator:
         specifier: ^1.0.0
         version: 1.0.6
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
@@ -99,9 +78,24 @@ importers:
       lint-staged:
         specifier: ^16.4.0
         version: 16.4.0
+      lucide-react:
+        specifier: ^0.511.0
+        version: 0.511.0(react@18.3.1)
       postcss:
         specifier: ^8.5.3
         version: 8.5.10
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^7.3.0
+        version: 7.14.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tailwind-merge:
+        specifier: ^3.0.2
+        version: 3.5.0
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.19(yaml@2.8.3)
@@ -111,6 +105,9 @@ importers:
       typescript-eslint:
         specifier: ^8.30.1
         version: 8.59.0(eslint@9.39.4(jiti@1.21.7))(typescript@5.8.3)
+      uuid:
+        specifier: ^14.0.0
+        version: 14.0.0
       vite:
         specifier: ^6.3.5
         version: 6.4.2(@types/node@22.19.17)(jiti@1.21.7)(yaml@2.8.3)
@@ -126,6 +123,9 @@ importers:
       vite-tsconfig-paths:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.8.3)(vite@6.4.2(@types/node@22.19.17)(jiti@1.21.7)(yaml@2.8.3))
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.12(@types/react@18.3.28)(react@18.3.1)
 
 packages:
 
