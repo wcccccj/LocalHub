@@ -22,7 +22,6 @@ export function ServiceList() {
   const { 
     services, 
     searchQuery, 
-    statusFilter, 
     processFilter, 
     pinnedPorts, 
     reorderPinned 
@@ -38,11 +37,10 @@ export function ServiceList() {
       const matchesSearch = (s.alias || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                             (s.process || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                             s.port.toString().includes(searchQuery);
-      const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
       const matchesProcess = processFilter === 'all' || s.process === processFilter;
-      return matchesSearch && matchesStatus && matchesProcess;
+      return matchesSearch && matchesProcess;
     });
-  }, [services, searchQuery, statusFilter, processFilter]);
+  }, [services, searchQuery, processFilter]);
 
   const { pinnedServices, unpinnedServices } = useMemo(() => {
     const pinnedMap = new Map(filteredServices.filter(s => s.isPinned).map(s => [s.port, s]));
@@ -50,10 +48,7 @@ export function ServiceList() {
     // Sort pinned services based on pinnedPorts array order
     const pinned = pinnedPorts.map(port => pinnedMap.get(port)).filter(Boolean) as ServiceEntry[];
     
-    const unpinned = filteredServices.filter(s => !s.isPinned).sort((a, b) => {
-      if (a.status !== b.status) return a.status === 'online' ? -1 : 1;
-      return a.port - b.port;
-    });
+    const unpinned = filteredServices.filter(s => !s.isPinned).sort((a, b) => a.port - b.port);
     
     return { pinnedServices: pinned, unpinnedServices: unpinned };
   }, [filteredServices, pinnedPorts]);

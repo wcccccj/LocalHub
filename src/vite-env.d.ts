@@ -18,8 +18,8 @@ export interface ServiceEntry {
 
 export interface ElectronAPI {
   scanPorts: () => Promise<Partial<ServiceEntry>[]>;
-  getStore: (key: string) => Promise<any>;
-  setStore: (key: string, value: any) => Promise<boolean>;
+  getStore: (key: string) => Promise<unknown>;
+  setStore: (key: string, value: unknown) => Promise<boolean>;
   deleteStore: (key: string) => Promise<boolean>;
   openUrl: (url: string) => Promise<void>;
 }

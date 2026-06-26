@@ -14,6 +14,9 @@ dist-ssr
 dist-electron
 dist-app
 release
+.localhub-store
+.trae
+pnpm-workspace.yaml
 *.local
 .eslintcache
 

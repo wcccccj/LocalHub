@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Search, RefreshCw, Plus } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { useServiceStore } from '@/store/useServiceStore';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -8,19 +8,13 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-interface ToolbarProps {
-  onAddClick: () => void;
-}
-
-export function Toolbar({ onAddClick }: ToolbarProps) {
+export function Toolbar() {
   const { 
     services, 
     isLoading, 
     searchQuery, 
-    statusFilter, 
     processFilter,
     setSearchQuery, 
-    setStatusFilter, 
     setProcessFilter, 
     fetchServices 
   } = useServiceStore();
@@ -42,21 +36,6 @@ export function Toolbar({ onAddClick }: ToolbarProps) {
           className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
         />
       </div>
-      
-      <div className="flex items-center space-x-2 bg-zinc-100 p-1 rounded-lg">
-        {(['all', 'online', 'offline'] as const).map(filter => (
-          <button
-            key={filter}
-            onClick={() => setStatusFilter(filter)}
-            className={cn(
-              "px-3 py-1.5 text-sm rounded-md capitalize font-medium transition-colors",
-              statusFilter === filter ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
-            )}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
 
       <select
         value={processFilter}
@@ -75,14 +54,6 @@ export function Toolbar({ onAddClick }: ToolbarProps) {
         title="Refresh"
       >
         <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-      </button>
-
-      <button
-        onClick={onAddClick}
-        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-      >
-        <Plus className="w-4 h-4" />
-        <span>Add Service</span>
       </button>
     </div>
   );

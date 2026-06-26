@@ -5,15 +5,11 @@ interface ServiceState {
   services: ServiceEntry[];
   isLoading: boolean;
   searchQuery: string;
-  statusFilter: 'all' | 'online' | 'offline';
   processFilter: string;
   pinnedPorts: number[];
   fetchServices: () => Promise<void>;
   updateService: (id: string, updates: Partial<ServiceEntry>) => Promise<void>;
-  addManualService: (service: Omit<ServiceEntry, 'id' | 'status' | 'isManual' | 'updatedAt'>) => Promise<void>;
-  deleteService: (id: string) => Promise<void>;
   setSearchQuery: (query: string) => void;
-  setStatusFilter: (filter: 'all' | 'online' | 'offline') => void;
   setProcessFilter: (process: string) => void;
   togglePin: (port: number) => Promise<void>;
   reorderPinned: (oldIndex: number, newIndex: number) => Promise<void>;
@@ -23,7 +19,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   services: [],
   isLoading: false,
   searchQuery: '',
-  statusFilter: 'all',
   processFilter: 'all',
   pinnedPorts: [],
   
@@ -31,10 +26,14 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     set({ isLoading: true });
     try {
       const activePorts = await window.electronAPI.scanPorts();
-      const savedConfig: ServiceEntry[] = await window.electronAPI.getStore('services') || [];
-      const savedPinnedPorts: number[] = await window.electronAPI.getStore('pinnedPorts') || [];
+      const savedConfigRaw = await window.electronAPI.getStore('services');
+      const savedConfig: ServiceEntry[] = Array.isArray(savedConfigRaw) ? (savedConfigRaw as ServiceEntry[]) : [];
+
+      const savedPinnedPortsRaw = await window.electronAPI.getStore('pinnedPorts');
+      const savedPinnedPorts: number[] = Array.isArray(savedPinnedPortsRaw)
+        ? (savedPinnedPortsRaw.filter(p => typeof p === 'number') as number[])
+        : [];
       
-      const activeMap = new Map(activePorts.map(s => [s.port, s]));
       const savedMap = new Map(savedConfig.map(s => [s.port, s]));
       
       const mergedServices: ServiceEntry[] = [];
@@ -70,18 +69,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         }
       }
       
-      // Handle saved but offline manual services or previously aliased services
-      for (const [port, saved] of savedMap) {
-        if (saved.isManual || saved.alias || saved.note || saved.path || savedPinnedPorts.includes(port)) {
-          mergedServices.push({
-            ...saved,
-            status: 'offline',
-            isPinned: savedPinnedPorts.includes(port),
-            pid: null
-          });
-        }
-      }
-      
       set({ services: mergedServices, pinnedPorts: savedPinnedPorts, isLoading: false });
     } catch (error) {
       console.error('Failed to fetch services:', error);
@@ -101,48 +88,15 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     
     set({ services: newServices });
     
-    // Save to electron-store (only save items with alias/note/path or manual)
-    const toSave = newServices.filter(s => s.alias || s.note || s.path || s.isManual);
-    await window.electronAPI.setStore('services', toSave);
-  },
-  
-  addManualService: async (serviceData) => {
-    const { services } = get();
-    
-    const newService: ServiceEntry = {
-      ...serviceData,
-      id: `manual-${serviceData.port}`,
-      status: 'offline', 
-      isManual: true,
-      updatedAt: new Date().toISOString()
-    };
-    
-    // Replace if port already exists
-    const existingIndex = services.findIndex(s => s.port === newService.port);
-    let newServices;
-    if (existingIndex >= 0) {
-      newServices = [...services];
-      newServices[existingIndex] = { ...newServices[existingIndex], ...newService, isManual: true };
-    } else {
-      newServices = [...services, newService];
+    const toSave = newServices.filter(s => s.alias || s.note || s.path || s.isPinned);
+    try {
+      await window.electronAPI.setStore('services', toSave);
+    } catch (error) {
+      console.error('Failed to persist services:', error);
     }
-    
-    set({ services: newServices });
-    const toSave = newServices.filter(s => s.alias || s.note || s.path || s.isManual);
-    await window.electronAPI.setStore('services', toSave);
-  },
-  
-  deleteService: async (id) => {
-    const { services } = get();
-    const newServices = services.filter(s => s.id !== id);
-    set({ services: newServices });
-    
-    const toSave = newServices.filter(s => s.alias || s.note || s.path || s.isManual);
-    await window.electronAPI.setStore('services', toSave);
   },
   
   setSearchQuery: (query) => set({ searchQuery: query }),
-  setStatusFilter: (filter) => set({ statusFilter: filter }),
   setProcessFilter: (process) => set({ processFilter: process }),
   
   togglePin: async (port: number) => {
@@ -156,11 +110,19 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     );
       
     set({ pinnedPorts: newPinned, services: newServices });
-    await window.electronAPI.setStore('pinnedPorts', newPinned);
+    try {
+      await window.electronAPI.setStore('pinnedPorts', newPinned);
+    } catch (error) {
+      console.error('Failed to persist pinned ports:', error);
+    }
     
     // Ensure the service is saved in services store too if it was just pinned
-    const toSave = newServices.filter(s => s.alias || s.note || s.path || s.isManual || newPinned.includes(s.port));
-    await window.electronAPI.setStore('services', toSave);
+    const toSave = newServices.filter(s => s.alias || s.note || s.path || newPinned.includes(s.port));
+    try {
+      await window.electronAPI.setStore('services', toSave);
+    } catch (error) {
+      console.error('Failed to persist services:', error);
+    }
   },
   
   reorderPinned: async (oldIndex: number, newIndex: number) => {
@@ -170,6 +132,10 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     newPinned.splice(newIndex, 0, moved);
     
     set({ pinnedPorts: newPinned });
-    await window.electronAPI.setStore('pinnedPorts', newPinned);
+    try {
+      await window.electronAPI.setStore('pinnedPorts', newPinned);
+    } catch (error) {
+      console.error('Failed to persist pinned ports:', error);
+    }
   }
 }));

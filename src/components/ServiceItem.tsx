@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ServiceEntry } from '@/vite-env';
 import { useServiceStore } from '@/store/useServiceStore';
-import { Trash2, Edit, ExternalLink, Pin, GripVertical } from 'lucide-react';
+import { Edit, ExternalLink, Pin, GripVertical } from 'lucide-react';
+import { Tooltip } from './Tooltip';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useSortable } from '@dnd-kit/sortable';
@@ -47,7 +48,7 @@ interface ServiceItemProps {
 }
 
 export function ServiceItem({ service, isSortable }: ServiceItemProps) {
-  const { updateService, deleteService, togglePin } = useServiceStore();
+  const { updateService, togglePin } = useServiceStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ alias: '', note: '', path: '', type: 'http' as ServiceEntry['type'] });
 
@@ -81,8 +82,11 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
   };
 
   const saveEdit = async () => {
-    await updateService(service.id, { ...editForm });
-    setIsEditing(false);
+    try {
+      await updateService(service.id, { ...editForm });
+    } finally {
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -95,7 +99,7 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
         isDragging && "shadow-lg opacity-90 border-blue-500 ring-2 ring-blue-500/20"
       )}
     >
-      <div className="flex items-center space-x-4 flex-1">
+      <div className="flex items-center space-x-4 flex-1 min-w-0">
         {isSortable && (
           <div 
             {...attributes} 
@@ -144,7 +148,7 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
             <select 
               className="border border-zinc-300 rounded px-2 py-1 text-sm"
               value={editForm.type}
-              onChange={e => setEditForm({...editForm, type: e.target.value as any})}
+              onChange={e => setEditForm({...editForm, type: e.target.value as ServiceEntry['type']})}
             >
               <option value="http">HTTP</option>
               <option value="https">HTTPS</option>
@@ -157,10 +161,12 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
             <button type="button" onClick={() => setIsEditing(false)} className="text-zinc-500 text-sm font-medium hover:underline">Cancel</button>
           </form>
         ) : (
-          <div className="flex-1 flex items-center space-x-4">
-            <div className="w-48 shrink-0 flex flex-col">
+          <div className="flex-1 min-w-0 flex items-center space-x-4">
+            <div className="w-40 shrink-0 flex flex-col">
               {service.alias ? (
-                <div className="font-medium text-zinc-900 truncate" title={service.alias}>{service.alias}</div>
+                <Tooltip content={service.alias}>
+                  <div className="font-medium text-zinc-900 truncate" title={service.alias}>{service.alias}</div>
+                </Tooltip>
               ) : (
                 <div className="text-zinc-400 italic text-sm">No alias</div>
               )}
@@ -169,19 +175,27 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
               )}
             </div>
             
-            <div className="w-32 shrink-0 flex items-center space-x-2">
-              <span className="text-sm text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded truncate" title={service.process}>
-                {service.process}
-              </span>
+            <div className="w-28 shrink-0 flex items-center space-x-2">
+              <Tooltip content={service.process}>
+                <span className="text-sm text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded truncate" title={service.process}>
+                  {service.process}
+                </span>
+              </Tooltip>
             </div>
 
             <div className="w-20 shrink-0">
               <TypeBadge type={service.type} />
             </div>
 
-            <div className="flex-1 truncate text-sm text-zinc-500" title={service.note}>
-              {service.note || '-'}
-            </div>
+            {service.note ? (
+              <Tooltip content={service.note}>
+                <div className="flex-1 min-w-0 truncate text-sm text-zinc-500" title={service.note}>
+                  {service.note}
+                </div>
+              </Tooltip>
+            ) : (
+              <div className="flex-1 min-w-0 truncate text-sm text-zinc-500">-</div>
+            )}
           </div>
         )}
       </div>
@@ -202,8 +216,7 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
           {['http', 'https', 'proxy'].includes(service.type) && (
             <button 
               onClick={handleOpen}
-              disabled={service.status === 'offline'}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center space-x-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               <span>Open</span>
@@ -219,16 +232,6 @@ export function ServiceItem({ service, isSortable }: ServiceItemProps) {
           >
             <Edit className="w-4 h-4" />
           </button>
-          
-          {service.isManual && (
-            <button 
-              onClick={() => deleteService(service.id)}
-              className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
         </div>
       )}
     </div>

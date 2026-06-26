@@ -6,7 +6,6 @@ export function Header() {
   const { services } = useServiceStore();
   
   const onlineCount = services.filter(s => s.status === 'online').length;
-  const offlineCount = services.filter(s => s.status === 'offline').length;
 
   return (
     <header className="bg-white border-b border-zinc-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
@@ -24,10 +23,6 @@ export function Header() {
         <div className="flex items-center space-x-1.5 text-sm bg-zinc-100 px-3 py-1.5 rounded-md">
           <div className="w-2 h-2 rounded-full bg-[#1D9E75]"></div>
           <span className="font-medium text-zinc-700">{onlineCount} Online</span>
-        </div>
-        <div className="flex items-center space-x-1.5 text-sm bg-zinc-100 px-3 py-1.5 rounded-md">
-          <div className="w-2 h-2 rounded-full bg-[#A32D2D]"></div>
-          <span className="font-medium text-zinc-700">{offlineCount} Offline</span>
         </div>
       </div>
     </header>
